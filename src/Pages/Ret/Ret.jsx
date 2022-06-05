@@ -1,13 +1,16 @@
 import "../../App.css";
 import { db } from "../../firebase";
+import { doc, updateDoc } from "firebase/firestore";
 import styled from "styled-components";
 import Navbar from "../../components/navbar/Navbar";
-import React, { useState } from "react";
-import { addDoc, collection } from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Box from "../../components/box/Box";
 import { motion } from "framer-motion";
+import { useContext, useState } from "react";
+import { BooksContext } from "../../context/BooksContext";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useNavigate, useParams } from "react-router-dom";
+
 const Container = styled(motion.div)`
   display: flex;
   flex-direction: column;
@@ -78,17 +81,30 @@ const SubmitBtn = styled.button`
     color: #000;
   }
 `;
+const CloseButton = styled.button`
+  background-color: #990000; /* Red */
+  border: none;
+  color: white;
+  padding: 18px 66px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 1.4rem;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  border: 1px solid #000;
+  border-radius: 5px;
+  cursor: pointer;
+  &:hover {
+    background-color: #fff;
+    color: #000;
+  }
+`;
 const ButtonContainer = styled.div`
   width: 60%;
   margin-left: auto;
   margin-right: auto;
 `;
-export default function NewOrder() {
-  const [name, setName] = useState("");
-  const [image, setImage] = useState("");
-  const [user, setUser] = useState("");
-  const [insurance, setInsurance] = useState("");
-  const booksCollectionRef = collection(db, "books");
+export default function Ret() {
   const navigate = useNavigate();
   const notifySuccess = () => {
     toast.success("Başarıyla Tamamlandı");
@@ -96,21 +112,23 @@ export default function NewOrder() {
   const notifyFailed = () => {
     toast.error("Yanlış Bir Şey Oldu");
   };
-  const createOrder = async (e) => {
+
+  const { books } = useContext(BooksContext);
+  const { id } = useParams();
+  /* function to update firestore */
+  const handleUpdate = async (e) => {
     e.preventDefault();
+    const taskDocRef = doc(db, "books", id);
+
     try {
-      await addDoc(booksCollectionRef, {
-        name: name.toString().trim(),
-        image: image.toString().trim(),
-        user: user.toString().trim(),
-        insurance: parseInt(insurance),
+      await updateDoc(taskDocRef, {
         done: false,
-        createdAt: new Date(),
       });
       notifySuccess();
       navigate("/");
     } catch (err) {
       notifyFailed();
+      console.log(err);
     }
   };
 
@@ -126,44 +144,22 @@ export default function NewOrder() {
           <FormContainer>
             <LabelContainer>
               <SpanContainer>
-                <Span>Kitap Adı</Span>
-              </SpanContainer>
-              <SpanContainer>
-                <Span>Kitap Fotoğrafı</Span>
-              </SpanContainer>
-              <SpanContainer>
-                <Span>Siparişi Alan Kişi</Span>
-              </SpanContainer>
-              <SpanContainer>
-                <Span>Kapura Miktarı ?</Span>
+                <Span>Kitap Geldi mi ?</Span>
               </SpanContainer>
             </LabelContainer>
-            <Form>
-              <Input
-                type="text"
-                placeholder="Kitap Adı Giriniz"
-                onChange={(e) => setName(e.target.value)}
-              />
-              <Input
-                type="text"
-                placeholder="Fotoğraf Bağlantısı Yapıştırın"
-                onChange={(e) => setImage(e.target.value)}
-              />
-              <Input
-                type="text"
-                placeholder="Ad Giriniz"
-                onChange={(e) => setUser(e.target.value)}
-              />
-              <Input
-                type="number"
-                placeholder="Kapura Miktarı Giriniz"
-                onChange={(e) => setInsurance(e.target.value)}
-              />
-            </Form>
+            {books
+              .filter((item) => item.id === id)
+              .map((item, i) => (
+                <Form onSubmit={handleUpdate} key={i}>
+                  <ButtonContainer>
+                    <SubmitBtn onClick={handleUpdate}>Hayir Gelmedi</SubmitBtn>
+                    <CloseButton onClick={navigate("/")}>
+                      Ana Sayfaya Dön
+                    </CloseButton>
+                  </ButtonContainer>
+                </Form>
+              ))}
           </FormContainer>
-          <ButtonContainer>
-            <SubmitBtn onClick={createOrder}>Oluştur</SubmitBtn>
-          </ButtonContainer>
         </PageContainer>
         <ToastContainer />
       </Container>

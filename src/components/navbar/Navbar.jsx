@@ -1,6 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { UserAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+
 const Container = styled.div`
   max-width: 100%;
   margin-right: auto;
@@ -31,6 +34,7 @@ const Ulogo = styled.ul`
 const Li = styled.li`
   list-style: none;
   font-size: 1.4rem;
+  cursor: pointer;
 `;
 const Logo = styled.span`
   font-size: 1.8rem;
@@ -38,13 +42,25 @@ const Logo = styled.span`
 `;
 
 const navbar = () => {
+  const { user, logout } = UserAuth();
+  const handleLogout = async () => {
+    try {
+      await logout();
+      console.log("You are logged out");
+      window.location.reload(false);
+    } catch (e) {
+      console.log(e.message);
+    }
+  };
   return (
     <Container>
       <Wrapper>
         <Ulogo>
-          <Li>
-            <Logo>Stok</Logo>
-          </Li>
+          <Link to="/">
+            <Li>
+              <Logo>Stok</Logo>
+            </Li>
+          </Link>
         </Ulogo>
         <Ul>
           <Li>
@@ -53,9 +69,8 @@ const navbar = () => {
           <Li>
             <Link to="/yeni-kayit">Yeni Kayıt</Link>
           </Li>
-          <Li>
-            <Link to="/kayit">Çıkış Yap</Link>
-          </Li>
+          {user ? <Li>{user.email}</Li> : <Li>Hi</Li>}
+          <Li onClick={handleLogout}>Çıkış Yap</Li>
         </Ul>
       </Wrapper>
     </Container>

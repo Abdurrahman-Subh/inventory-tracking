@@ -1,13 +1,16 @@
 import "../../App.css";
 import { db } from "../../firebase";
+import { doc, updateDoc } from "firebase/firestore";
 import styled from "styled-components";
 import Navbar from "../../components/navbar/Navbar";
-import React, { useState } from "react";
-import { addDoc, collection } from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Box from "../../components/box/Box";
 import { motion } from "framer-motion";
+import { useContext, useState } from "react";
+import { BooksContext } from "../../context/BooksContext";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useNavigate, useParams } from "react-router-dom";
+
 const Container = styled(motion.div)`
   display: flex;
   flex-direction: column;
@@ -83,12 +86,7 @@ const ButtonContainer = styled.div`
   margin-left: auto;
   margin-right: auto;
 `;
-export default function NewOrder() {
-  const [name, setName] = useState("");
-  const [image, setImage] = useState("");
-  const [user, setUser] = useState("");
-  const [insurance, setInsurance] = useState("");
-  const booksCollectionRef = collection(db, "books");
+export default function BookPage() {
   const navigate = useNavigate();
   const notifySuccess = () => {
     toast.success("Başarıyla Tamamlandı");
@@ -96,21 +94,40 @@ export default function NewOrder() {
   const notifyFailed = () => {
     toast.error("Yanlış Bir Şey Oldu");
   };
-  const createOrder = async (e) => {
+  const notifyWarning = () => {
+    toast.error("Kitap Adını ve Kullanıcıyı Boş Bırakmayınız");
+  };
+  const { books } = useContext(BooksContext);
+  const { id } = useParams();
+  const [newBookName, setNewBookName] = useState(
+    books.filter((item) => item.id === id).map((item) => item.name)
+  );
+  const [newImage, setNewImage] = useState(
+    books.filter((item) => item.id === id).map((item) => item.image)
+  );
+  const [insurance, setNewInsurance] = useState(
+    books.filter((item) => item.id === id).map((item) => item.insurance)
+  );
+  const [user, setNewUser] = useState(
+    books.filter((item) => item.id === id).map((item) => item.user)
+  );
+  /* function to update firestore */
+  const handleUpdate = async (e) => {
     e.preventDefault();
+    const taskDocRef = doc(db, "books", id);
+
     try {
-      await addDoc(booksCollectionRef, {
-        name: name.toString().trim(),
-        image: image.toString().trim(),
-        user: user.toString().trim(),
+      await updateDoc(taskDocRef, {
+        name: newBookName.toString(),
+        image: newImage.toString(),
         insurance: parseInt(insurance),
-        done: false,
-        createdAt: new Date(),
+        user: user.toString(),
       });
       notifySuccess();
       navigate("/");
     } catch (err) {
       notifyFailed();
+      console.log(err);
     }
   };
 
@@ -138,31 +155,35 @@ export default function NewOrder() {
                 <Span>Kapura Miktarı ?</Span>
               </SpanContainer>
             </LabelContainer>
-            <Form>
-              <Input
-                type="text"
-                placeholder="Kitap Adı Giriniz"
-                onChange={(e) => setName(e.target.value)}
-              />
-              <Input
-                type="text"
-                placeholder="Fotoğraf Bağlantısı Yapıştırın"
-                onChange={(e) => setImage(e.target.value)}
-              />
-              <Input
-                type="text"
-                placeholder="Ad Giriniz"
-                onChange={(e) => setUser(e.target.value)}
-              />
-              <Input
-                type="number"
-                placeholder="Kapura Miktarı Giriniz"
-                onChange={(e) => setInsurance(e.target.value)}
-              />
-            </Form>
+            {books
+              .filter((item) => item.id === id)
+              .map((item, i) => (
+                <Form onSubmit={handleUpdate} key={i}>
+                  <Input
+                    type="text"
+                    value={newBookName}
+                    onChange={(e) => setNewBookName(e.target.value)}
+                  />
+                  <Input
+                    type="text"
+                    value={newImage}
+                    onChange={(e) => setNewImage(e.target.value)}
+                  />
+                  <Input
+                    type="text"
+                    value={user}
+                    onChange={(e) => setNewUser(e.target.value)}
+                  />
+                  <Input
+                    type="number"
+                    value={insurance}
+                    onChange={(e) => setNewInsurance(e.target.value)}
+                  />
+                </Form>
+              ))}
           </FormContainer>
           <ButtonContainer>
-            <SubmitBtn onClick={createOrder}>Oluştur</SubmitBtn>
+            <SubmitBtn onClick={handleUpdate}>Gönder</SubmitBtn>
           </ButtonContainer>
         </PageContainer>
         <ToastContainer />
