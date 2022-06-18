@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAuth } from "../../context/AuthContext";
 import styled from "styled-components";
-import Icon from "../../components/Icon/Icon";
 import Button from "../../components/Button/Button";
-import Input from "../../components/Input/Input";
+import BackGround from "../../Utility/backgroundColor.jpg";
+
 const MainContainer = styled.div`
   display: flex;
   align-items: center;
@@ -19,7 +19,7 @@ const MainContainer = styled.div`
   color: #ffffff;
   text-transform: uppercase;
   letter-spacing: 0.4rem;
-  background-image: url("https://img.freepik.com/free-photo/old-black-background-grunge-texture-dark-wallpaper-blackboard-chalkboard-room-wall_1258-28312.jpg?w=1380&t=st=1654460101~exp=1654460701~hmac=c09240ecd5fb2113666221181b82dec051bb2f7046e482b69aa5317f5ff6b62a");
+  background-image: url(${BackGround});
   background-repeat: no-repeat;
   background-size: cover;
   @media only screen and (max-width: 320px) {
@@ -57,7 +57,30 @@ const MainContainer = styled.div`
     height: 100vh;
   }
 `;
-
+const Input = styled.input`
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  border-radius: 2rem;
+  width: 80%;
+  height: 3rem;
+  padding: 1rem;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
+  &:focus {
+    display: inline-block;
+    box-shadow: 0 0 0 0.2rem #b9abe0;
+    backdrop-filter: blur(12rem);
+    border-radius: 2rem;
+  }
+  &::placeholder {
+    color: #b9abe099;
+    font-weight: 100;
+    font-size: 1rem;
+  }
+`;
 const WelcomeText = styled.h2`
   margin: 3rem 0 2rem 0;
 `;
@@ -105,14 +128,24 @@ const SignIn = () => {
     <MainContainer>
       <WelcomeText>Hoş Geldiniz</WelcomeText>
       <InputContainer>
-        <Input type="text" placeholder="Mail" />
-        <Input type="password" placeholder="Şifre" />
+        <Input
+          type="text"
+          placeholder="Mail"
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <Input
+          type="password"
+          placeholder="Şifre"
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <p>Error is {error}</p>
       </InputContainer>
       <ButtonContainer>
-        <Button content="Giriş Yap" />
+        <Button event={handleSubmit} content="Giriş Yap" />
       </ButtonContainer>
-
-      <ForgotPassword>Şifreyi Unuttum ?</ForgotPassword>
+      <Link to="/signup">
+        <ForgotPassword>Yeni Hesap Oluştur </ForgotPassword>
+      </Link>
     </MainContainer>
   );
 };

@@ -63,6 +63,31 @@ const Span = styled.label`
   font-size: 1.6rem;
   text-align: start !important;
 `;
+const Option = styled.option`
+  text-align: start;
+`;
+const Select = styled.select`
+  /* Reset */
+  appearance: none;
+  border: 0;
+  outline: 0;
+  font-size: 1.2rem;
+  /* Personalize */
+  width: 16em;
+  height: 2.5em;
+  padding: 0 4em 0 1em;
+  background-image: linear-gradient(45deg, transparent 50%, #c4c4c4 50%),
+    linear-gradient(135deg, #c4c4c4 50%, transparent 50%),
+    linear-gradient(90deg, rgba(215, 44, 43, 1) 0%, rgba(245, 86, 85, 1) 55%);
+  background-position: calc(100% - 20px) calc(1em + 2px),
+    calc(100% - 15px) calc(1em + 2px), 100% 0;
+  background-size: 5px 5px, 5px 5px, 2.5em 2.5em;
+  background-repeat: no-repeat;
+  color: #000;
+  border-radius: 0.25em;
+  box-shadow: 0 0 1em 0 rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+`;
 const SubmitBtn = styled.button`
   background-color: #4caf50; /* Green */
   border: none;
@@ -111,6 +136,12 @@ export default function BookPage() {
   const [user, setNewUser] = useState(
     books.filter((item) => item.id === id).map((item) => item.user)
   );
+  const [newSeller, setNewSeller] = useState(
+    books.filter((item) => item.id === id).map((item) => item.seller)
+  );
+  const [newBuyer, setNewBuyer] = useState(
+    books.filter((item) => item.id === id).map((item) => item.buyer)
+  );
   /* function to update firestore */
   const handleUpdate = async (e) => {
     e.preventDefault();
@@ -122,6 +153,8 @@ export default function BookPage() {
         image: newImage.toString(),
         insurance: parseInt(insurance),
         user: user.toString(),
+        buyer: newBuyer.toString(),
+        seller: newSeller.toString(),
       });
       notifySuccess();
       navigate("/");
@@ -146,6 +179,12 @@ export default function BookPage() {
                 <Span>Kitap Adı</Span>
               </SpanContainer>
               <SpanContainer>
+                <Span>Müşteri Adı</Span>
+              </SpanContainer>
+              <SpanContainer>
+                <Span>Satıcı</Span>
+              </SpanContainer>
+              <SpanContainer>
                 <Span>Kitap Fotoğrafı</Span>
               </SpanContainer>
               <SpanContainer>
@@ -164,6 +203,19 @@ export default function BookPage() {
                     value={newBookName}
                     onChange={(e) => setNewBookName(e.target.value)}
                   />
+                  <Input
+                    type="text"
+                    value={newBuyer}
+                    onChange={(e) => setNewBuyer(e.target.value)}
+                  />
+                  <Select onChange={(e) => setNewSeller(e.target.value)}>
+                    <Option value={newSeller} hidden>
+                      {newSeller}
+                    </Option>
+                    <Option value="Derya">Derya</Option>
+                    <Option value="Başarı">Başarı</Option>
+                    <Option value="Kida">Kida</Option>
+                  </Select>
                   <Input
                     type="text"
                     value={newImage}

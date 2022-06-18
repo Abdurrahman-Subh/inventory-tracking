@@ -22,6 +22,31 @@ const Input = styled.input`
   font-size: 1.4rem;
   text-align: start;
 `;
+const Option = styled.option`
+  text-align: start;
+`;
+const Select = styled.select`
+  /* Reset */
+  appearance: none;
+  border: 0;
+  outline: 0;
+  font-size: 1.2rem;
+  /* Personalize */
+  width: 16em;
+  height: 2.5em;
+  padding: 0 4em 0 1em;
+  background-image: linear-gradient(45deg, transparent 50%, #c4c4c4 50%),
+    linear-gradient(135deg, #c4c4c4 50%, transparent 50%),
+    linear-gradient(90deg, rgba(215, 44, 43, 1) 0%, rgba(245, 86, 85, 1) 55%);
+  background-position: calc(100% - 20px) calc(1em + 2px),
+    calc(100% - 15px) calc(1em + 2px), 100% 0;
+  background-size: 5px 5px, 5px 5px, 2.5em 2.5em;
+  background-repeat: no-repeat;
+  color: #000;
+  border-radius: 0.25em;
+  box-shadow: 0 0 1em 0 rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+`;
 const LabelContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(1, 1fr);
@@ -85,9 +110,11 @@ const ButtonContainer = styled.div`
 `;
 export default function NewOrder() {
   const [name, setName] = useState("");
-  const [image, setImage] = useState("");
+  const [number, setNumber] = useState("");
   const [user, setUser] = useState("");
   const [insurance, setInsurance] = useState("");
+  const [seller, setSeller] = useState("");
+  const [buyer, setBuyer] = useState("");
   const booksCollectionRef = collection(db, "books");
   const navigate = useNavigate();
   const notifySuccess = () => {
@@ -101,9 +128,11 @@ export default function NewOrder() {
     try {
       await addDoc(booksCollectionRef, {
         name: name.toString().trim(),
-        image: image.toString().trim(),
-        user: user.toString().trim(),
+        user: user.toString(),
         insurance: parseInt(insurance),
+        seller: seller.toString(),
+        buyer: buyer.toString(),
+        sellerNumber: number.toString(),
         done: false,
         createdAt: new Date(),
       });
@@ -129,13 +158,22 @@ export default function NewOrder() {
                 <Span>Kitap Adı</Span>
               </SpanContainer>
               <SpanContainer>
-                <Span>Kitap Fotoğrafı</Span>
+                <Span>Adet</Span>
+              </SpanContainer>
+              <SpanContainer>
+                <Span>Müşteri Adı</Span>
+              </SpanContainer>
+              <SpanContainer>
+                <Span>Müşteri Numarası</Span>
+              </SpanContainer>
+              <SpanContainer>
+                <Span>Kapora Miktarı ?</Span>
               </SpanContainer>
               <SpanContainer>
                 <Span>Siparişi Alan Kişi</Span>
               </SpanContainer>
               <SpanContainer>
-                <Span>Kapura Miktarı ?</Span>
+                <Span>Nerden Sipariş Edildi ?</Span>
               </SpanContainer>
             </LabelContainer>
             <Form>
@@ -145,20 +183,45 @@ export default function NewOrder() {
                 onChange={(e) => setName(e.target.value)}
               />
               <Input
-                type="text"
-                placeholder="Fotoğraf Bağlantısı Yapıştırın"
-                onChange={(e) => setImage(e.target.value)}
+                type="number"
+                placeholder="Sayı Giriniz"
+                onChange={(e) => setNumber(e.target.value)}
               />
               <Input
                 type="text"
-                placeholder="Ad Giriniz"
-                onChange={(e) => setUser(e.target.value)}
+                placeholder="Müşteri Adı Giriniz"
+                onChange={(e) => setBuyer(e.target.value)}
               />
               <Input
                 type="number"
-                placeholder="Kapura Miktarı Giriniz"
+                placeholder="Müşteri Numarası"
                 onChange={(e) => setInsurance(e.target.value)}
               />
+              <Input
+                type="number"
+                placeholder="Kapora Miktarı Giriniz"
+                onChange={(e) => setInsurance(e.target.value)}
+              />
+              <Select onChange={(e) => setUser(e.target.value)}>
+                <Option value="" hidden>
+                  Seçiniz
+                </Option>
+                <Option value="Elif">Elif</Option>
+                <Option value="Ramazan">Ramazan</Option>
+                <Option value="Güngör">Güngör</Option>
+                <Option value="Emre">Emre</Option>
+                <Option value="Kübra">Kübra</Option>
+                <Option value="Çağla">Çağla</Option>
+              </Select>
+
+              <Select onChange={(e) => setSeller(e.target.value)}>
+                <Option value="" hidden>
+                  Seçiniz
+                </Option>
+                <Option value="Derya">Derya</Option>
+                <Option value="Başarı">Başarı</Option>
+                <Option value="Kida">Kida</Option>
+              </Select>
             </Form>
           </FormContainer>
           <ButtonContainer>
